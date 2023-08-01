@@ -6,16 +6,19 @@ import com.example.horizontalpager.action.UserListReducer
 import com.example.horizontalpager.action.UserListState
 import com.example.horizontalpager.api.RetrofitClient.apiService
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class UserListViewModel : ViewModel() {
 
-    private val _state = MutableStateFlow<UserListState>(UserListState())
+    private val _state = MutableStateFlow(UserListState())
     val state: StateFlow<UserListState> = _state.asStateFlow()
 
     private val _action = Channel<UserListAction>()
-    val action = _action.receiveAsFlow()
+    private val action = _action.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -37,7 +40,7 @@ class UserListViewModel : ViewModel() {
 
     private suspend fun fetchUsers() {
         try {
-            val users = apiService.getUsers() // Replace apiService with your actual API service
+            val users = apiService.getUsers()
             _state.value = _state.value.copy(users = users, loading = false)
         } catch (e: Exception) {
             _state.value = _state.value.copy(error = "Failed to fetch users", loading = false)
@@ -50,3 +53,5 @@ class UserListViewModel : ViewModel() {
         }
     }
 }
+
+
